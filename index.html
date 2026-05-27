@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Minha Matriz de Eisenhower — T&D</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --blue: #0031FF;
+      --blue-light: #e6eaff;
+      --blue-mid: #b3bfff;
+      --navy: #0d1a4a;
+      --green-brand: #C3EF4B;
+
+      --q1-bg: #fff0f0; --q1-border: #ffb3b3; --q1-icon: #e53e3e; --q1-title: #c53030; --q1-sub: #e05252; --q1-action-bg: #e53e3e; --q1-focus: #e53e3e;
+      --q2-bg: #f0faf2; --q2-border: #9ae6b4; --q2-icon: #38a169; --q2-title: #276749; --q2-sub: #48bb78; --q2-action-bg: #38a169; --q2-focus: #38a169;
+      --q3-bg: #fffbea; --q3-border: #f6e05e; --q3-icon: #d69e2e; --q3-title: #b7791f; --q3-sub: #d69e2e; --q3-action-bg: #d69e2e; --q3-focus: #d69e2e;
+      --q4-bg: #f7f7f7; --q4-border: #cbd5e0; --q4-icon: #718096; --q4-title: #4a5568; --q4-sub: #718096; --q4-action-bg: #718096; --q4-focus: #718096;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f4f5fb;
+      color: var(--navy);
+      min-height: 100vh;
+      padding: 0 0 2.5rem;
+    }
+
+    .header-bar {
+      background: var(--blue);
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .logo-text { display: flex; flex-direction: row; align-items: center; gap: 6px; line-height: 1; }
+    .logo-text .t1 { font-size: 20px; font-weight: 400; color: rgba(255,255,255,0.9); }
+    .logo-text .t2 { font-size: 20px; font-weight: 700; color: #fff; }
+    .logo-amp { color: var(--green-brand); font-weight: 700; }
+
+    .header-content { text-align: center; padding: 1.75rem 1rem 0.75rem; }
+    .header-badge {
+      display: inline-block; font-size: 11px; font-weight: 700;
+      background: var(--blue); color: #fff; border-radius: 20px;
+      padding: 4px 14px; margin-bottom: 12px; letter-spacing: .05em; text-transform: uppercase;
+    }
+    .header-content h1 { font-size: 22px; font-weight: 700; color: var(--navy); margin-bottom: 4px; }
+    .header-content p { font-size: 14px; color: #4a5580; margin-bottom: 6px; }
+    .header-quote { font-size: 13px; color: #7a82a8; font-style: italic; }
+
+    .nome-wrap {
+      display: flex; align-items: center; gap: 10px;
+      justify-content: center; margin: 14px 1rem 0;
+    }
+    .nome-wrap label { font-size: 13px; color: #4a5580; white-space: nowrap; }
+    .nome-wrap input {
+      max-width: 280px; width: 100%; font-size: 13px;
+      padding: 8px 12px; border-radius: 8px;
+      border: 1.5px solid #c8cce8; background: #fff;
+      color: var(--navy); outline: none; font-family: inherit;
+      transition: border-color .15s;
+    }
+    .nome-wrap input:focus { border-color: var(--blue); }
+
+    .legenda-row {
+      display: flex; flex-wrap: wrap; gap: 12px;
+      justify-content: center; margin: 14px 1rem 0;
+    }
+    .leg { display: flex; align-items: center; gap: 6px; font-size: 12px; color: #4a5580; }
+    .leg-dot { width: 10px; height: 10px; border-radius: 3px; flex-shrink: 0; }
+
+    .grid-wrap { padding: 0 1rem; margin: 16px auto 0; max-width: 920px; }
+    .eixos-top {
+      display: flex; justify-content: space-between; padding: 0 6px 4px;
+      font-size: 11px; font-weight: 700; color: #7a82a8;
+      letter-spacing: .05em; text-transform: uppercase; margin-left: 34px;
+    }
+    .eixo-v-wrap { display: flex; gap: 10px; align-items: stretch; }
+    .eixo-v-labels {
+      display: flex; flex-direction: column; justify-content: space-between;
+      width: 26px; flex-shrink: 0; padding: 4px 0;
+    }
+    .eixo-v-labels span {
+      font-size: 10px; font-weight: 700; color: #7a82a8;
+      text-transform: uppercase; letter-spacing: .04em;
+      writing-mode: vertical-rl; transform: rotate(180deg); text-align: center;
+    }
+    .matrix { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; flex: 1; }
+
+    .quadrant {
+      border-radius: 14px; padding: 14px; min-height: 210px;
+      display: flex; flex-direction: column; gap: 10px; border: 1.5px solid;
+    }
+    .q1 { background: var(--q1-bg); border-color: var(--q1-border); }
+    .q2 { background: var(--q2-bg); border-color: var(--q2-border); }
+    .q3 { background: var(--q3-bg); border-color: var(--q3-border); }
+    .q4 { background: var(--q4-bg); border-color: var(--q4-border); }
+
+    .q-header { display: flex; align-items: flex-start; gap: 10px; }
+    .q-icon {
+      width: 32px; height: 32px; border-radius: 8px;
+      display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+    }
+    .q1 .q-icon { background: var(--q1-icon); }
+    .q2 .q-icon { background: var(--q2-icon); }
+    .q3 .q-icon { background: var(--q3-icon); }
+    .q4 .q-icon { background: var(--q4-icon); }
+    .q-icon svg { width: 16px; height: 16px; }
+
+    .q-title { font-size: 13px; font-weight: 700; margin-bottom: 2px; }
+    .q1 .q-title { color: var(--q1-title); }
+    .q2 .q-title { color: var(--q2-title); }
+    .q3 .q-title { color: var(--q3-title); }
+    .q4 .q-title { color: var(--q4-title); }
+
+    .q-sub { font-size: 11px; }
+    .q1 .q-sub { color: var(--q1-sub); }
+    .q2 .q-sub { color: var(--q2-sub); }
+    .q3 .q-sub { color: var(--q3-sub); }
+    .q4 .q-sub { color: var(--q4-sub); }
+
+    .q-action {
+      font-size: 11px; font-weight: 700; display: inline-block;
+      padding: 3px 10px; border-radius: 20px; letter-spacing: .03em; color: #fff;
+    }
+    .q1 .q-action { background: var(--q1-action-bg); }
+    .q2 .q-action { background: var(--q2-action-bg); }
+    .q3 .q-action { background: var(--q3-action-bg); }
+    .q4 .q-action { background: var(--q4-action-bg); }
+
+    .items-list { display: flex; flex-direction: column; gap: 5px; flex: 1; }
+
+    .item-row {
+      display: flex; align-items: flex-start; gap: 4px;
+      background: rgba(255,255,255,0.7); border-radius: 7px;
+      border: 1.5px solid transparent; transition: border-color .15s;
+      padding-right: 2px;
+    }
+    .q1 .item-row:focus-within { border-color: var(--q1-focus); background: #fff; }
+    .q2 .item-row:focus-within { border-color: var(--q2-focus); background: #fff; }
+    .q3 .item-row:focus-within { border-color: var(--q3-focus); background: #fff; }
+    .q4 .item-row:focus-within { border-color: var(--q4-focus); background: #fff; }
+
+    .item-input {
+      flex: 1; font-size: 13px; padding: 6px 8px; border-radius: 6px;
+      border: none; background: transparent;
+      color: var(--navy); outline: none; resize: none; font-family: inherit;
+      line-height: 1.5; min-height: 34px;
+    }
+    .item-input::placeholder { color: #b0b8d8; font-style: italic; }
+
+    .del-btn {
+      flex-shrink: 0; width: 22px; height: 22px; margin-top: 6px;
+      border-radius: 4px; border: none; background: transparent;
+      color: #c0c8e0; cursor: pointer; display: flex;
+      align-items: center; justify-content: center;
+      transition: background .12s, color .12s; padding: 0;
+    }
+    .del-btn:hover { background: #ffe0e0; color: #e53e3e; }
+    .del-btn svg { width: 12px; height: 12px; }
+
+    .add-btn {
+      font-size: 12px; color: #7a82a8; background: none;
+      border: 1.5px dashed #c8cce8; border-radius: 7px; padding: 5px 10px;
+      cursor: pointer; text-align: left; width: 100%;
+      transition: background .15s, border-color .15s, color .15s; font-family: inherit;
+    }
+    .add-btn:hover { background: rgba(255,255,255,0.6); border-color: var(--blue); color: var(--blue); }
+
+    .actions-row {
+      display: flex; align-items: center; justify-content: center;
+      gap: 10px; margin: 18px auto 0; flex-wrap: wrap;
+      max-width: 920px; padding: 0 1rem;
+    }
+    .save-btn {
+      font-size: 13px; font-weight: 700; padding: 9px 22px; border-radius: 8px;
+      border: none; background: var(--blue); color: #fff; cursor: pointer;
+      font-family: inherit; transition: opacity .15s;
+    }
+    .save-btn:hover { opacity: 0.88; }
+    .clear-btn {
+      font-size: 13px; padding: 9px 20px; border-radius: 8px;
+      border: 1.5px solid #c8cce8; background: #fff; color: #4a5580;
+      cursor: pointer; font-family: inherit; transition: background .15s;
+    }
+    .clear-btn:hover { background: #f4f5fb; }
+    .saved-msg {
+      font-size: 12px; color: #276749; display: none;
+      align-items: center; gap: 5px; font-weight: 600;
+    }
+    .saved-msg.show { display: flex; }
+
+    .dica-wrap { max-width: 920px; margin: 16px auto 0; padding: 0 1rem; }
+    .dica { background: #fff; border: 1.5px solid #c8cce8; border-radius: 12px; padding: 14px 18px; }
+    .dica-title {
+      font-size: 12px; font-weight: 700; color: var(--blue);
+      margin-bottom: 10px; text-transform: uppercase; letter-spacing: .05em;
+    }
+    .dica-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+    .dica-item { font-size: 12px; color: #4a5580; line-height: 1.6; padding-left: 10px; }
+    .dica-item.d1 { border-left: 3px solid #e53e3e; }
+    .dica-item.d2 { border-left: 3px solid #38a169; }
+    .dica-item.d3 { border-left: 3px solid #d69e2e; }
+    .dica-item.d4 { border-left: 3px solid #718096; }
+    .dica-item strong { color: var(--navy); font-weight: 700; }
+
+    .footer {
+      max-width: 920px; margin: 20px auto 0; padding: 16px 1rem 0;
+      border-top: 1.5px solid #c8cce8;
+      display: flex; align-items: center; justify-content: center; gap: 12px;
+    }
+    .footer-name { font-size: 13px; font-weight: 700; color: var(--blue); }
+
+    @media (max-width: 600px) {
+      .matrix { grid-template-columns: 1fr; }
+      .dica-grid { grid-template-columns: 1fr; }
+      .eixos-top, .eixo-v-labels { display: none; }
+    }
+
+    .download-bar {
+      background: var(--navy);
+      padding: 9px 1.5rem;
+      display: flex; align-items: center; justify-content: center; gap: 14px;
+      flex-wrap: wrap;
+    }
+    .download-bar span {
+      font-size: 12px; color: rgba(255,255,255,0.7); font-weight: 400;
+    }
+    .download-btn {
+      display: inline-flex; align-items: center; gap: 7px;
+      background: var(--green-brand); color: var(--navy);
+      font-size: 13px; font-weight: 700; padding: 7px 18px;
+      border-radius: 8px; border: none; cursor: pointer;
+      font-family: inherit; text-decoration: none;
+      transition: filter .15s, transform .1s; letter-spacing: .01em;
+      white-space: nowrap;
+    }
+    .download-btn:hover { filter: brightness(1.07); transform: translateY(-1px); }
+    .download-btn:active { transform: translateY(0); }
+    .download-btn svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+  </style>
+</head>
+<body>
+
+  <div class="header-bar">
+    <div class="logo-text">
+      <span class="t1">Treinamento <span class="logo-amp">&</span></span>
+      <span class="t2">Desenvolvimento</span>
+    </div>
+  </div>
+
+
+  <div class="download-bar">
+    <span>Quer usar offline? Salve no seu PC para editar e acessar sem internet</span>
+    <a class="download-btn" id="download-btn" href="#" download="Matriz_de_Eisenhower.html">
+      <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M7.5 2v7.5M4.5 7l3 3 3-3" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M2 11.5v1a1 1 0 001 1h9a1 1 0 001-1v-1" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/>
+      </svg>
+      Baixar arquivo
+    </a>
+  </div>
+
+  <div class="header-content">
+    <span class="header-badge">Organização Interna e Autogestão da Vida</span>
+    <h1>Minha Matriz de Eisenhower</h1>
+  
+    <p class="header-quote">"Não é sobre fazer mais — é sobre fazer o que importa."</p>
+  </div>
+
+  <div class="nome-wrap">
+    <label for="nome-input">Minha prioridade hoje é:</label>
+    <input id="nome-input" type="text" placeholder="escreva aqui..." maxlength="50" />
+  </div>
+
+  <div class="legenda-row">
+    <div class="leg"><div class="leg-dot" style="background:#e53e3e"></div>Urgente + Importante</div>
+    <div class="leg"><div class="leg-dot" style="background:#38a169"></div>Não urgente + Importante</div>
+    <div class="leg"><div class="leg-dot" style="background:#d69e2e"></div>Urgente + Não importante</div>
+    <div class="leg"><div class="leg-dot" style="background:#718096"></div>Nem urgente, nem importante</div>
+  </div>
+
+  <div class="grid-wrap">
+    <div class="eixos-top">
+      <span>Urgente</span>
+      <span>Não urgente</span>
+    </div>
+    <div class="eixo-v-wrap">
+      <div class="eixo-v-labels">
+        <span>Importante</span>
+        <span>Não importante</span>
+      </div>
+      <div class="matrix">
+
+        <div class="quadrant q1">
+          <div class="q-header">
+            <div class="q-icon">
+              <svg viewBox="0 0 16 16" fill="none"><circle cx="8" cy="8" r="6" stroke="#fff" stroke-width="1.4"/><line x1="8" y1="4.5" x2="8" y2="8.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/><circle cx="8" cy="10.5" r="0.9" fill="#fff"/></svg>
+            </div>
+            <div>
+              <p class="q-title">Q1 — Faça agora</p>
+              <p class="q-sub">Crises, prazos reais, emergências</p>
+            </div>
+          </div>
+          <span class="q-action">Ação imediata</span>
+          <div class="items-list" id="list-q1"></div>
+          <button class="add-btn" onclick="addItem('q1')">+ adicionar item</button>
+        </div>
+
+        <div class="quadrant q2">
+          <div class="q-header">
+            <div class="q-icon">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M8 3v5M8 8l3.5-2M8 8l-3.5-2" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/><path d="M2.5 11.5h11" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="q-title">Q2 — Planeje e faça</p>
+              <p class="q-sub">Saúde, crescimento, relacionamentos</p>
+            </div>
+          </div>
+          <span class="q-action">Agendar com intenção</span>
+          <div class="items-list" id="list-q2"></div>
+          <button class="add-btn" onclick="addItem('q2')">+ adicionar item</button>
+        </div>
+
+        <div class="quadrant q3">
+          <div class="q-header">
+            <div class="q-icon">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M3.5 8h9M10 5.5l3 2.5-3 2.5" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </div>
+            <div>
+              <p class="q-title">Q3 — Delegue ou questione</p>
+              <p class="q-sub">Interrupções, pedidos dos outros</p>
+            </div>
+          </div>
+          <span class="q-action">Delegar ou dizer não</span>
+          <div class="items-list" id="list-q3"></div>
+          <button class="add-btn" onclick="addItem('q3')">+ adicionar item</button>
+        </div>
+
+        <div class="quadrant q4">
+          <div class="q-header">
+            <div class="q-icon">
+              <svg viewBox="0 0 16 16" fill="none"><path d="M4.5 4.5l7 7M11.5 4.5l-7 7" stroke="#fff" stroke-width="1.4" stroke-linecap="round"/></svg>
+            </div>
+            <div>
+              <p class="q-title">Q4 — Reduza</p>
+              <p class="q-sub">Distrações, hábitos que drenam energia</p>
+            </div>
+          </div>
+          <span class="q-action">Eliminar ou limitar</span>
+          <div class="items-list" id="list-q4"></div>
+          <button class="add-btn" onclick="addItem('q4')">+ adicionar item</button>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="save-btn" onclick="salvar()">Salvar minha matriz</button>
+    <button class="clear-btn" onclick="limpar()">Limpar tudo</button>
+    <div class="saved-msg" id="saved-msg">
+      <svg width="14" height="14" viewBox="0 0 14 14" fill="none"><circle cx="7" cy="7" r="6" fill="#38a169"/><path d="M4.5 7l2 2 3-3" stroke="#fff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      Matriz salva!
+    </div>
+  </div>
+
+  <div class="dica-wrap">
+    <div class="dica">
+      <p class="dica-title">Como usar toda semana</p>
+      <div class="dica-grid">
+        <p class="dica-item d1"><strong>Q1 — Faça hoje.</strong> São as urgências reais. Se você vive só aqui, está em modo reativo.</p>
+        <p class="dica-item d2"><strong>Q2 — O quadrante que transforma.</strong> Exige escolha ativa. Reserve tempo pra ele toda semana.</p>
+        <p class="dica-item d3"><strong>Q3 — Questione antes de aceitar.</strong> Urgente pra quem? Se não é seu, devolva ou delegue.</p>
+        <p class="dica-item d4"><strong>Q4 — Sem culpa, com consciência.</strong> Descanso tem valor. Fuga disfarçada de descanso, não.</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p class="footer-name">T&D — Treinamento & Desenvolvimento</p>
+  </div>
+
+  <script>
+    const STORAGE_KEY = 'matriz_td_v3';
+
+    function makeDelBtn(row) {
+      const btn = document.createElement('button');
+      btn.className = 'del-btn';
+      btn.title = 'Remover item';
+      btn.innerHTML = '<svg viewBox="0 0 12 12" fill="none"><path d="M2 2l8 8M10 2l-8 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+      btn.addEventListener('click', function () {
+        row.style.opacity = '0';
+        row.style.transition = 'opacity .15s';
+        setTimeout(() => { row.remove(); autoSave(); }, 150);
+      });
+      return btn;
+    }
+
+    function makeRow(val) {
+      const row = document.createElement('div');
+      row.className = 'item-row';
+      const ta = document.createElement('textarea');
+      ta.className = 'item-input';
+      ta.placeholder = 'escreva aqui...';
+      ta.value = val || '';
+      ta.rows = 1;
+      ta.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = this.scrollHeight + 'px';
+        autoSave();
+      });
+      ta.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          const q = this.closest('.items-list').id.replace('list-', '');
+          addItem(q);
+        }
+        if (e.key === 'Backspace' && this.value === '') {
+          e.preventDefault();
+          row.style.opacity = '0';
+          row.style.transition = 'opacity .15s';
+          setTimeout(() => { row.remove(); autoSave(); }, 150);
+        }
+      });
+      if (val) setTimeout(() => { ta.style.height = ta.scrollHeight + 'px'; }, 0);
+      row.appendChild(ta);
+      row.appendChild(makeDelBtn(row));
+      return { row, ta };
+    }
+
+    function addItem(q) {
+      const list = document.getElementById('list-' + q);
+      const { row, ta } = makeRow('');
+      list.appendChild(row);
+      ta.focus();
+    }
+
+    function autoSave() {
+      const data = { nome: document.getElementById('nome-input').value, items: {} };
+      ['q1','q2','q3','q4'].forEach(q => {
+        data.items[q] = Array.from(document.querySelectorAll('#list-' + q + ' textarea'))
+          .map(t => t.value).filter(v => v.trim());
+      });
+      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(data)); } catch(e) {}
+    }
+
+    function salvar() {
+      autoSave();
+      const msg = document.getElementById('saved-msg');
+      msg.classList.add('show');
+      setTimeout(() => msg.classList.remove('show'), 2500);
+    }
+
+    function limpar() {
+      if (!confirm('Tem certeza que quer limpar todos os itens?')) return;
+      ['q1','q2','q3','q4'].forEach(q => { document.getElementById('list-' + q).innerHTML = ''; });
+      document.getElementById('nome-input').value = '';
+      try { localStorage.removeItem(STORAGE_KEY); } catch(e) {}
+    }
+
+    function carregar() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (!raw) return;
+        const data = JSON.parse(raw);
+        if (data.nome) document.getElementById('nome-input').value = data.nome;
+        if (data.items) {
+          ['q1','q2','q3','q4'].forEach(q => {
+            const list = document.getElementById('list-' + q);
+            (data.items[q] || []).forEach(val => {
+              if (val.trim()) { const { row } = makeRow(val); list.appendChild(row); }
+            });
+          });
+        }
+      } catch(e) {}
+    }
+
+    document.getElementById('nome-input').addEventListener('input', autoSave);
+    carregar();
+
+    // Botão de download do próprio arquivo
+    (function() {
+      const btn = document.getElementById('download-btn');
+      if (!btn) return;
+      btn.addEventListener('click', function(e) {
+        e.preventDefault();
+        const html = document.documentElement.outerHTML;
+        const blob = new Blob([html], { type: 'text/html' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = 'Matriz_de_Eisenhower.html';
+        document.body.appendChild(a);
+        a.click();
+        setTimeout(() => { URL.revokeObjectURL(url); a.remove(); }, 1000);
+      });
+    })();
+  </script>
+</body>
+</html>
